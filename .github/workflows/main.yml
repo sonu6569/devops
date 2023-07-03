@@ -1,0 +1,28 @@
+name: Push-to-EC2
+
+
+on:
+  push:
+    branches:
+      - main
+jobs:
+  deploy:
+    name: Push to EC2 Instance
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout the code
+        uses: actions/checkout@v1
+
+      - name: Deploy to my EC2 instance
+        uses: easingthemes/ssh-deploy@v2.1.5
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.pramod }}
+          SOURCE: "index.html"
+          REMOTE_HOST: "13.233.59.111"
+          REMOTE_USER: "ubuntu"
+          TARGET: "/var/www/html"
+      - name: store log on s3
+        run: |
+          aws s3 cp ${{ github.workspace }}/.github/workflows/logs s3://sonu65691/logs/${{ github.run_id }} --recursive
+        
